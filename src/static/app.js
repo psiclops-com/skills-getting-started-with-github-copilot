@@ -60,7 +60,13 @@ document.addEventListener("DOMContentLoaded", () => {
                     method: "POST",
                   }
                 );
-                const result = await response.json();
+                let result;
+                try {
+                  result = await response.json();
+                } catch (parseError) {
+                  console.error("Failed to parse unregister response as JSON:", parseError);
+                  result = {};
+                }
                 if (response.ok) {
                   messageDiv.textContent = result.message || "Participant removed.";
                   messageDiv.className = "success";
