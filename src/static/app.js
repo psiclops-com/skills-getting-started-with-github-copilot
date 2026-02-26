@@ -20,30 +20,75 @@ document.addEventListener("DOMContentLoaded", () => {
 
         const spotsLeft = details.max_participants - details.participants.length;
 
-          activityCard.innerHTML = `
-            <h4>${name}</h4>
-            <p>${details.description}</p>
-            <p><strong>Schedule:</strong> ${details.schedule}</p>
-            <p><strong>Availability:</strong> ${spotsLeft} spots left</p>
-            <div class="participants-section">
-              <strong>Participants:</strong>
-              ${details.participants.length === 0
-                ? '<p class="no-participants">No participants yet.</p>'
-                : `<ul class="participants-list">
-                    ${details.participants
-                      .map(email => `
-                        <li class="participant-item">
-                          <span class="participant-email">${email}</span>
-                          <button class="delete-participant" title="Remove participant" data-activity="${name}" data-email="${email}">
-                            <span class="delete-icon">&#128465;</span>
-                          </button>
-                        </li>
-                      `)
-                      .join('')}
-                  </ul>`}
-            </div>
-          `;
+        // Build activity card content safely without using innerHTML
+        const titleEl = document.createElement("h4");
+        titleEl.textContent = name;
+        activityCard.appendChild(titleEl);
 
+        const descriptionEl = document.createElement("p");
+        descriptionEl.textContent = details.description;
+        activityCard.appendChild(descriptionEl);
+
+        const scheduleEl = document.createElement("p");
+        const scheduleStrong = document.createElement("strong");
+        scheduleStrong.textContent = "Schedule:";
+        scheduleEl.appendChild(scheduleStrong);
+        scheduleEl.appendChild(document.createTextNode(" " + details.schedule));
+        activityCard.appendChild(scheduleEl);
+
+        const availabilityEl = document.createElement("p");
+        const availabilityStrong = document.createElement("strong");
+        availabilityStrong.textContent = "Availability:";
+        availabilityEl.appendChild(availabilityStrong);
+        availabilityEl.appendChild(
+          document.createTextNode(" " + spotsLeft + " spots left")
+        );
+        activityCard.appendChild(availabilityEl);
+
+        const participantsSection = document.createElement("div");
+        participantsSection.className = "participants-section";
+
+        const participantsLabel = document.createElement("strong");
+        participantsLabel.textContent = "Participants:";
+        participantsSection.appendChild(participantsLabel);
+
+        if (details.participants.length === 0) {
+          const noParticipants = document.createElement("p");
+          noParticipants.className = "no-participants";
+          noParticipants.textContent = "No participants yet.";
+          participantsSection.appendChild(noParticipants);
+        } else {
+          const participantsListEl = document.createElement("ul");
+          participantsListEl.className = "participants-list";
+
+          details.participants.forEach((email) => {
+            const participantItem = document.createElement("li");
+            participantItem.className = "participant-item";
+
+            const emailSpan = document.createElement("span");
+            emailSpan.className = "participant-email";
+            emailSpan.textContent = email;
+            participantItem.appendChild(emailSpan);
+
+            const deleteButton = document.createElement("button");
+            deleteButton.className = "delete-participant";
+            deleteButton.title = "Remove participant";
+            deleteButton.setAttribute("data-activity", name);
+            deleteButton.setAttribute("data-email", email);
+
+            const deleteIconSpan = document.createElement("span");
+            deleteIconSpan.className = "delete-icon";
+            deleteIconSpan.textContent = "🗑️";
+            deleteButton.appendChild(deleteIconSpan);
+
+            participantItem.appendChild(deleteButton);
+            participantsListEl.appendChild(participantItem);
+          });
+
+          participantsSection.appendChild(participantsListEl);
+        }
+
+        activityCard.appendChild(participantsSection);
         activitiesList.appendChild(activityCard);
 
           // Add delete event listeners for participants
